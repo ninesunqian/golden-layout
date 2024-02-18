@@ -286,6 +286,32 @@ export class Stack extends ComponentParentableItem {
         return this.addChild(contentItem, index);
     }
 
+    dropNewComponent(componentType: JsonValue, componentState?: JsonValue, title: string, dropSegment: Stack.Segment,
+                     index?: number): ComponentItem {
+        const itemConfig: ComponentItemConfig = {
+            type: 'component',
+            componentType,
+            componentState,
+            title,
+        };
+        this.layoutManager.checkMinimiseMaximisedStack();
+
+        const resolvedItemConfig = ItemConfig.resolve(itemConfig, false);
+        const contentItem = this.layoutManager.createAndInitContentItem(resolvedItemConfig, this);
+        this.dropItem(contentItem, dropSegment, index);
+        return contentItem as ComponentItem;
+    }
+
+    dropItem(contentItem: ContentItem, dropSegment: Stack.Segment, headerIndex ?:number): void {
+        headerIndex ??= this.contentItems.length;
+        if (this.contentItems.length == 0) {
+            dropSegment = Stack.Segment.Body;
+        }
+        this._dropSegment = dropSegment;
+        this._dropIndex = headerIndex;
+        this.onDrop(contentItem, null);
+    }
+
     override addChild(contentItem: ContentItem, index?: number, focus = false): number {
         if(index !== undefined && index > this.contentItems.length){
             index -= 1;
