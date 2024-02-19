@@ -3,12 +3,13 @@ import { ResolvedComponentItemConfig, ResolvedGroundItemConfig, ResolvedHeadered
 import { AssertError, UnexpectedNullError } from '../errors/internal-error';
 import { LayoutManager } from '../layout-manager';
 import { DomConstants } from '../utils/dom-constants';
-import { AreaLinkedRect, ItemType, SizeUnitEnum } from '../utils/types';
+import { AreaLinkedRect, ItemType, SizeUnitEnum, JsonValue } from '../utils/types';
 import { getElementWidthAndHeight, setElementHeight, setElementWidth } from '../utils/utils';
 import { ComponentItem } from './component-item';
 import { ComponentParentableItem } from './component-parentable-item';
 import { ContentItem } from './content-item';
 import { RowOrColumn } from './row-or-column';
+import { Stack } from "./stack";
 
 /**
  * GroundItem is the ContentItem whose one child is the root ContentItem (Root is planted in Ground).
@@ -281,6 +282,38 @@ export class GroundItem extends ComponentParentableItem {
         }
     }
 
+    dropNewComponent(componentType: JsonValue, componentState?: JsonValue, title: string,
+                     dropPosition: Stack.Segment): ComponentItem {
+        const itemConfig: ComponentItemConfig = {
+            type: 'component',
+            componentType,
+            componentState,
+            title,
+        };
+        this.layoutManager.checkMinimiseMaximisedStack();
+
+        const resolvedItemConfig = ItemConfig.resolve(itemConfig, false);
+        const contentItem = this.layoutManager.createAndInitContentItem(resolvedItemConfig, this);
+        this.dropItem(contentItem, dropPosition);
+        return contentItem as ComponentItem;
+    }
+
+    dropItem(contentItem: ContentItem, dropPosition: Stack.Segment): void {
+        const areas = this.createSideAreas();
+        let dropArea = null;
+        if (dropPosition == Stack.Segment.Top) {
+            dropArea = areas[0];
+        } else if (dropPosition == Stack.Segment.Left) {
+            dropArea = areas[1];
+        } else if (dropPosition == Stack.Segment.Bottom) {
+            dropArea = areas[2];
+        } else if (dropPosition == Stack.Segment.Right) {
+            dropArea = areas[3];
+        } else {
+            throw new AssertError('GID87733');
+        }
+        return this.onDrop(contentItem, dropArea);
+    }
     // No ContentItem can dock with groundItem.  However Stack can have a GroundItem parent and Stack requires that
     // its parent implement dock() function.  Accordingly this function is implemented but throws an exception as it should
     // never be called
