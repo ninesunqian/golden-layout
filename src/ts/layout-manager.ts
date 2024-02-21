@@ -36,6 +36,8 @@ import {
     setElementWidth
 } from './utils/utils';
 
+import * as _ from "lodash";
+
 /** @internal */
 declare global {
     interface Window {
@@ -444,6 +446,27 @@ export abstract class LayoutManager extends EventEmitter {
                     return createdItem;
                 }
             }
+        }
+    }
+
+    private findCanDroppedAncestor(contentItem: ContentItem): ContentItem | undefined {
+        let parent = contentItem.parent;
+        while (parent !== null) {
+            if (parent.isStack || parent.isGround) {
+                return parent;
+            }
+            parent = parent.parent;
+        }
+        return undefined;
+    }
+
+    newComponentNear(componentType: JsonValue, componentState: JsonValue, title: string,
+                     neighbor: ContentItem, side: Stack.Segment): ComponentItem {
+        const container = this.findCanDroppedAncestor(neighbor);
+        if (container.isStack) {
+            return (container as Stack).dropNewComponent(componentType, componentState, title, side);
+        } else {
+            return (container as GroundItem).dropNewComponent(componentType, componentState, title, side);
         }
     }
 
@@ -1351,7 +1374,7 @@ export abstract class LayoutManager extends EventEmitter {
      * regardles of level or type
      * @internal
      */
-    private getAllContentItems() {
+   getAllContentItems(): ContentItem[] {
         if (this._groundItem === undefined) {
             throw new UnexpectedUndefinedError('LMGACI13130');
         } else {
@@ -1773,6 +1796,7 @@ export abstract class LayoutManager extends EventEmitter {
 export namespace LayoutManager {
     export type BeforeVirtualRectingEvent = (this: void, count: number) => void;
     export type AfterVirtualRectingEvent = (this: void) => void;
+    export type Segment = Stack.Segment;
 
     /** @internal */
     export interface ConstructorParameters {
