@@ -177,9 +177,11 @@ export class Header extends EventEmitter {
         /**
          * Close button
          */
+        /* remove close button, but keep closable. It is to close stack when all components are closed.
         if (this._configClosable) {
             this._closeButton = new HeaderButton(this, this._closeLabel, DomConstants.ClassName.Close, () => closeEvent());
         }
+        */
 
         this.processTabDropdownActiveChanged();
     }
