@@ -27,7 +27,7 @@ export abstract class ContentItem extends EventEmitter {
     /** @internal */
     private _contentItems: ContentItem[];
     /** @internal */
-    private _isClosable;
+    protected _isClosable;
     /** @internal */
     private _pendingEventPropagations: Record<string, unknown>;
     /** @internal */

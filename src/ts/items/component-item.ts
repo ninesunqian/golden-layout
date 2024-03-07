@@ -169,6 +169,11 @@ export class ComponentItem extends ContentItem {
         this.emit('stateChanged');
     }
 
+    setClosable(closable: boolean): void {
+        this._isClosable = closable;
+        this._tab.updateClosable();
+    }
+
     setTab(tab: Tab): void {
         this._tab = tab;
         this.emit('tab', tab)

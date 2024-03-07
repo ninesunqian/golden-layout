@@ -137,6 +137,19 @@ export class Tab {
         }
     }
 
+
+    /**
+     * update this tab's close botton
+     */
+    updateClosable(): void {
+        if (this._componentItem.isClosable) {
+            this._closeElement.style.display = '';
+        } else {
+            this._closeElement.style.display = 'none';
+        }
+    }
+
+
     /**
      * Destroys the tab
      * @internal
